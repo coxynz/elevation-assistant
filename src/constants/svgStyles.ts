@@ -2,6 +2,7 @@
 export const SVG_COLORS = {
     slate900: '#0f172a',
     slate800: '#1e293b',
+    slate600: '#475569',
     slate500: '#64748b',
     slate400: '#94a3b8',
     slate300: '#cbd5e1',
@@ -11,6 +12,7 @@ export const SVG_COLORS = {
     blue500: '#3b82f6',
     green500: '#22c55e',
     white: '#ffffff',
+    orange500: '#f97316',
     ghost: '#94a3b8'
 } as const;
 

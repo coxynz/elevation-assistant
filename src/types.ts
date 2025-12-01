@@ -50,3 +50,12 @@ export interface MountingScenario {
 export type ViewMode = 'front' | 'backing';
 
 export type CameraPosition = 'top' | 'bottom';
+
+export interface Flushbox {
+  id: string;
+  label: string; // e.g., "FB01"
+  x: number; // mm from left
+  y: number; // mm from top (SVG coordinates)
+  width: number; // 97mm
+  height: number; // 62mm
+}

@@ -3,30 +3,31 @@ import { Preset, MountingScenario, MountingBracket } from './types';
 
 // Generic approx dimensions for standard 16:9 displays (inc bezel)
 export const DISPLAY_PRESETS: Preset[] = [
+  // LG UR640S0TD Series
   {
-    id: 'generic-55',
-    label: '55" Generic Display',
-    dimensions: { width: 1230, height: 710, diagonalInch: 55, name: 'Generic 55"' }
+    id: 'lg-86ur640s0td',
+    label: 'LG 86UR640S0TD (86")',
+    dimensions: { width: 1927, height: 1104, depth: 59.9, diagonalInch: 86, name: 'LG 86UR640S0TD' }
   },
   {
-    id: 'generic-65',
-    label: '65" Generic Display',
-    dimensions: { width: 1450, height: 830, diagonalInch: 65, name: 'Generic 65"' }
+    id: 'lg-75ur640s0td',
+    label: 'LG 75UR640S0TD (75")',
+    dimensions: { width: 1678, height: 964, depth: 59.9, diagonalInch: 75, name: 'LG 75UR640S0TD' }
   },
   {
-    id: 'generic-75',
-    label: '75" Generic Display',
-    dimensions: { width: 1670, height: 960, diagonalInch: 75, name: 'Generic 75"' }
+    id: 'lg-65ur640s0td',
+    label: 'LG 65UR640S0TD (65")',
+    dimensions: { width: 1454, height: 838, depth: 57.7, diagonalInch: 65, name: 'LG 65UR640S0TD' }
   },
   {
-    id: 'generic-85',
-    label: '85" Generic Display',
-    dimensions: { width: 1890, height: 1090, diagonalInch: 85, name: 'Generic 85"' }
+    id: 'lg-50ur640s0td',
+    label: 'LG 50UR640S0TD (50")',
+    dimensions: { width: 1121, height: 651, depth: 57.1, diagonalInch: 50, name: 'LG 50UR640S0TD' }
   },
   {
-    id: 'generic-98',
-    label: '98" Generic Display',
-    dimensions: { width: 2190, height: 1250, diagonalInch: 98, name: 'Generic 98"' }
+    id: 'lg-43ur640s0td',
+    label: 'LG 43UR640S0TD (43")',
+    dimensions: { width: 967, height: 564, depth: 57.1, diagonalInch: 43, name: 'LG 43UR640S0TD' }
   },
   // Sony BZ30L Series
   {

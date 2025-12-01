@@ -1,8 +1,11 @@
 
-import React from 'react';
-import { DisplayDimensions, InstallationSpecs, ScenarioType, MountingBracket, ViewMode, CameraPosition } from '../types';
+import React, { useState, useRef } from 'react';
+import { DisplayDimensions, InstallationSpecs, ScenarioType, MountingBracket, ViewMode, CameraPosition, Flushbox } from '../types';
 import { DUAL_SCREEN_GAP } from '../constants';
 import { SVG_COLORS as COLORS, SVG_FONTS as FONTS } from '../constants/svgStyles';
+import { DimensionLine } from './shared/DimensionLine';
+import { FlushboxObject } from './shared/FlushboxObject';
+import { Guides } from './shared/Guides';
 
 interface ElevationDrawingProps {
   dimensions: DisplayDimensions;
@@ -16,6 +19,13 @@ interface ElevationDrawingProps {
   showGuides?: boolean;
   showCamera?: boolean;
   cameraPosition?: CameraPosition;
+  flushboxes?: Flushbox[];
+  onFlushboxMove?: (id: string, x: number, y: number) => void;
+  zoom?: number;
+  panOffset?: { x: number, y: number };
+  onPan?: (dx: number, dy: number) => void;
+  dimensionOffsets?: { center: number, bottom: number, top: number };
+  onDimensionMove?: (type: 'center' | 'bottom' | 'top', offsetX: number) => void;
   id?: string;
   className?: string;
 }
@@ -32,6 +42,13 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
   showGuides = false,
   showCamera = false,
   cameraPosition = 'bottom',
+  flushboxes = [],
+  onFlushboxMove,
+  zoom = 1.0,
+  panOffset = { x: 0, y: 0 },
+  onPan,
+  dimensionOffsets = { center: -350, bottom: -600, top: -350 },
+  onDimensionMove,
   id,
   className = ""
 }) => {
@@ -40,6 +57,86 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
   const viewHeight = wallHeight;
   const gap = DUAL_SCREEN_GAP;
   const isBacking = viewMode === 'backing';
+
+  // Drag State
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [isPanning, setIsPanning] = useState<boolean>(false);
+  const [panStart, setPanStart] = useState<{ x: number, y: number } | null>(null);
+  const [draggingDimension, setDraggingDimension] = useState<'center' | 'bottom' | 'top' | null>(null);
+  const [dimensionDragStart, setDimensionDragStart] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // Calculate viewBox based on zoom and pan
+  const viewBox = `${panOffset.x} ${panOffset.y} ${viewWidth / zoom} ${viewHeight / zoom}`;
+
+  // Drag Handlers
+  const getMousePosition = (evt: React.MouseEvent | React.TouchEvent) => {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+
+    const CTM = svg.getScreenCTM();
+    if (!CTM) return { x: 0, y: 0 };
+
+    const clientX = 'touches' in evt ? evt.touches[0].clientX : (evt as React.MouseEvent).clientX;
+    const clientY = 'touches' in evt ? evt.touches[0].clientY : (evt as React.MouseEvent).clientY;
+
+    return {
+      x: (clientX - CTM.e) / CTM.a,
+      y: (clientY - CTM.f) / CTM.d
+    };
+  };
+
+  const handleMouseDown = (evt: React.MouseEvent | React.TouchEvent, id: string) => {
+    if (!onFlushboxMove) return;
+    evt.stopPropagation();
+    setDraggingId(id);
+  };
+
+  const handleBackgroundMouseDown = (evt: React.MouseEvent) => {
+    if (!onPan || draggingId) return;
+    setIsPanning(true);
+    const { x, y } = getMousePosition(evt);
+    setPanStart({ x, y });
+  };
+
+  const handleDimensionMouseDown = (evt: React.MouseEvent, type: 'center' | 'bottom' | 'top') => {
+    if (!onDimensionMove) return;
+    evt.stopPropagation();
+    const { x } = getMousePosition(evt);
+    setDraggingDimension(type);
+    setDimensionDragStart(x);
+  };
+
+  const handleMouseMove = (evt: React.MouseEvent | React.TouchEvent) => {
+    if (draggingId && onFlushboxMove) {
+      evt.preventDefault();
+
+      const { x, y } = getMousePosition(evt);
+      const boxWidth = 97;
+      const boxHeight = 62;
+
+      onFlushboxMove(draggingId, x - (boxWidth / 2), y - (boxHeight / 2));
+    } else if (isPanning && onPan && panStart) {
+      const { x, y } = getMousePosition(evt);
+      const dx = x - panStart.x;
+      const dy = y - panStart.y;
+      onPan(-dx, -dy); // Negative because viewBox moves opposite to visual pan
+      setPanStart({ x, y });
+    } else if (draggingDimension && onDimensionMove && dimensionDragStart !== null) {
+      const { x } = getMousePosition(evt);
+      const newOffset = dimensionOffsets[draggingDimension] + (x - dimensionDragStart);
+      onDimensionMove(draggingDimension, newOffset);
+      setDimensionDragStart(x);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDraggingId(null);
+    setIsPanning(false);
+    setPanStart(null);
+    setDraggingDimension(null);
+    setDimensionDragStart(null);
+  };
 
   // Calculate Group Dimensions
   const totalGroupWidth = displayCount === 1
@@ -71,64 +168,6 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
   const groupCenterX = viewWidth / 2;
   const groupLeftX = groupCenterX - (totalGroupWidth / 2);
   const groupRightX = groupCenterX + (totalGroupWidth / 2);
-
-  // Helper for ticks
-  const renderDimension = (
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    label: string,
-    offset: number = 0,
-    vertical: boolean = false
-  ) => {
-    const tickSize = 60;
-    const textOffset = 70;
-    const style = {
-      fontFamily: FONTS.mono,
-      fontSize: '36px',
-      fontWeight: 500,
-      fill: COLORS.slate800
-    };
-
-    if (vertical) {
-      const lineX = x1 + offset;
-      return (
-        <g>
-          <line x1={lineX} y1={y1} x2={lineX} y2={y2} stroke={COLORS.slate800} strokeWidth="3" />
-          <line x1={lineX - tickSize / 2} y1={y1} x2={lineX + tickSize / 2} y2={y1} stroke={COLORS.slate800} strokeWidth="3" />
-          <line x1={lineX - tickSize / 2} y1={y2} x2={lineX + tickSize / 2} y2={y2} stroke={COLORS.slate800} strokeWidth="3" />
-          <text
-            x={lineX + textOffset}
-            y={(y1 + y2) / 2}
-            textAnchor="middle"
-            alignmentBaseline="middle"
-            style={style}
-            transform={`rotate(-90 ${lineX + textOffset} ${(y1 + y2) / 2})`}
-          >
-            {label}
-          </text>
-        </g>
-      );
-    } else {
-      const lineY = y1 + offset;
-      return (
-        <g>
-          <line x1={x1} y1={lineY} x2={x2} y2={lineY} stroke={COLORS.slate800} strokeWidth="3" />
-          <line x1={x1} y1={lineY - tickSize / 2} x2={x1} y2={lineY + tickSize / 2} stroke={COLORS.slate800} strokeWidth="3" />
-          <line x1={x2} y1={lineY - tickSize / 2} x2={x2} y2={lineY + tickSize / 2} stroke={COLORS.slate800} strokeWidth="3" />
-          <text
-            x={(x1 + x2) / 2}
-            y={lineY - textOffset / 2}
-            textAnchor="middle"
-            style={style}
-          >
-            {label}
-          </text>
-        </g>
-      );
-    }
-  };
 
   // Renderer for Chief LSM1U Wireframe
   const renderLSM1UGeometry = (width: number, height: number, isGhost: boolean) => {
@@ -175,7 +214,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
 
           {/* Bottom Housing */}
           <path
-            d={`M${flareOffset},${uprightHeight - capHeight} L0,${uprightHeight - capHeight} L0,${uprightHeight - 10} L${10},${uprightHeight} L${uprightCapWidth - 10},${uprightHeight} L${uprightCapWidth - 10},${uprightHeight - capHeight} L${uprightCapWidth - flareOffset},${uprightHeight - capHeight} Z`}
+            d={`M${flareOffset},${uprightHeight - capHeight} L0,${uprightHeight - capHeight} L0,${uprightHeight - 10} L${10},${uprightHeight} L${uprightCapWidth - 10},${uprightHeight - capHeight} L${uprightCapWidth - flareOffset},${uprightHeight - capHeight} Z`}
             fill={fill}
             stroke={strokeColor}
             strokeWidth={strokeWidth}
@@ -228,8 +267,8 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
 
     const displayFill = isBacking ? COLORS.white : COLORS.slate200;
     const displayFillOpacity = isBacking ? 0.2 : 1;
-    const displayStroke = isBacking ? COLORS.slate400 : COLORS.slate800;
-    const displayStrokeWidth = 4;
+    const displayStroke = isBacking ? COLORS.slate900 : COLORS.slate800;
+    const displayStrokeWidth = isBacking ? 6 : 4;
     const displayDash = isBacking ? '12,12' : 'none';
 
     return (
@@ -281,8 +320,8 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
             {/* Bracket Dimensions (Only in Backing View) */}
             {isBacking && (
               <>
-                {renderDimension(0, 0, bracket.width, 0, `${bracket.width}mm`, -50, false)}
-                {renderDimension(bracket.width, 0, bracket.width, bracket.height, `${bracket.height}mm`, 50, true)}
+                <DimensionLine x1={0} y1={0} x2={bracket.width} y2={0} label={`${bracket.width}mm`} offset={-50} vertical={false} />
+                <DimensionLine x1={bracket.width} y1={0} x2={bracket.width} y2={bracket.height} label={`${bracket.height}mm`} offset={50} vertical={true} />
               </>
             )}
           </g>
@@ -323,68 +362,24 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
     );
   };
 
-  // Render Guides
-  const renderGuides = () => {
-    if (!showGuides) return null;
-    const seatedY = viewHeight - 1200;
-    const standingY = viewHeight - 1500;
-    const style = { fontSize: '24px', fontFamily: FONTS.sans, fill: COLORS.blue500 };
-
-    return (
-      <g>
-        {/* Seated Eye Level */}
-        <line x1={0} y1={seatedY} x2={viewWidth} y2={seatedY} stroke={COLORS.blue500} strokeWidth="2" strokeDasharray="10,10" opacity="0.6" />
-        <text x={20} y={seatedY - 10} style={style}>Seated Eye Level (1200mm)</text>
-
-        {/* Standing Eye Level */}
-        <line x1={0} y1={standingY} x2={viewWidth} y2={standingY} stroke={COLORS.blue500} strokeWidth="2" strokeDasharray="10,10" opacity="0.6" />
-        <text x={20} y={standingY - 10} style={style}>Standing Eye Level (1500mm)</text>
-      </g>
-    );
-  };
-
-  // Render Camera
-  const renderCamera = () => {
-    if (!showCamera) return null;
-
-    // Calculate camera position based on display and camera mount position
-    let camY: number;
-    const camWidth = 200;
-    const camH = 60;
-    const camX = groupCenterX - (camWidth / 2);
-
-    if (cameraPosition === 'bottom') {
-      // Camera flush below display (no gap)
-      camY = svgTvBottomY + (camH / 2);
-    } else {
-      // Camera flush above display (no gap)
-      camY = svgTvTopY - (camH / 2);
-    }
-
-    const camHeightMm = viewHeight - camY;
-
-    return (
-      <g>
-        <line x1={0} y1={camY} x2={viewWidth} y2={camY} stroke={COLORS.green500} strokeWidth="2" strokeDasharray="5,5" opacity="0.5" />
-        <rect x={camX} y={camY - (camH / 2)} width={camWidth} height={camH} rx={4} fill={COLORS.slate800} />
-        <circle cx={groupCenterX} cy={camY} r={15} fill="#333" stroke="white" strokeWidth="2" />
-        <text x={camX + camWidth + 20} y={camY} alignmentBaseline="middle" fill={COLORS.green500} style={{ fontSize: '24px', fontFamily: FONTS.sans }}>
-          VC Camera ({Math.round(camHeightMm)}mm, {cameraPosition})
-        </text>
-      </g>
-    );
-  };
-
   return (
     <div className={`w-full h-full flex flex-col items-center justify-center bg-white rounded-lg shadow-inner border border-slate-200 p-4 ${className}`}>
       <svg
+        ref={svgRef}
         id={id}
-        viewBox={`0 0 ${viewWidth} ${viewHeight}`}
+        viewBox={viewBox}
         preserveAspectRatio="xMidYMax meet"
         className="w-full h-full max-h-[80vh] bg-grid-pattern border border-slate-100"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-labelledby={`${id}-title ${id}-desc`}
+        onMouseDown={handleBackgroundMouseDown}
+        onMouseMove={handleMouseMove}
+        onTouchMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchEnd={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ cursor: isPanning ? 'grabbing' : draggingId ? 'default' : 'grab' }}
       >
         <title id={`${id}-title`}>
           {isBacking ? 'Mounting Detail View' : 'Display Elevation View'}
@@ -405,8 +400,27 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
         </text>
 
         {/* Guides Layer (Behind displays) */}
-        {renderGuides()}
-        {renderCamera()}
+        <Guides
+          viewWidth={viewWidth}
+          viewHeight={viewHeight}
+          showGuides={showGuides}
+          showCamera={showCamera}
+          cameraPosition={cameraPosition}
+          displayTopY={svgTvTopY}
+          displayBottomY={svgTvBottomY}
+          groupCenterX={groupCenterX}
+        />
+
+        {flushboxes.map((box, index) => (
+          <FlushboxObject
+            key={box.id}
+            box={box}
+            viewHeight={viewHeight}
+            isDragging={draggingId === box.id}
+            onMouseDown={(e) => handleMouseDown(e, box.id)}
+            index={index}
+          />
+        ))}
 
         {/* Displays */}
         {displayCount === 1 ? (
@@ -448,49 +462,44 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
         </text>
 
         {/* Dimensions: Total Width */}
-        {renderDimension(groupLeftX, svgTvTopY, groupRightX, svgTvTopY, `${Math.round(totalGroupWidth)}mm`, -180, false)}
+        <DimensionLine x1={groupLeftX} y1={svgTvTopY} x2={groupRightX} y2={svgTvTopY} label={`${Math.round(totalGroupWidth)}mm`} offset={-180} vertical={false} />
 
         {/* Dimensions: Display Height (Only Front View or Reference) */}
-        {!isBacking && renderDimension(groupRightX, svgTvTopY, groupRightX, svgTvBottomY, `${Math.round(dimensions.height)}mm`, 120, true)}
+        {!isBacking && (
+          <DimensionLine x1={groupRightX} y1={svgTvTopY} x2={groupRightX} y2={svgTvBottomY} label={`${Math.round(dimensions.height)}mm`} offset={120} vertical={true} />
+        )}
 
         {/* Dimensions: Mounting Heights */}
-        <line x1={groupLeftX} y1={svgTvCenterY} x2={groupLeftX - 350} y2={svgTvCenterY} stroke={COLORS.slate400} strokeDasharray="15,15" strokeWidth="2" />
-        {renderDimension(groupLeftX - 300, svgFloorY, groupLeftX - 300, svgTvCenterY, `AFFL (Center): ${Math.round(tvCenterY_mm)}mm`, 0, true)}
-
-        <line x1={groupLeftX} y1={svgTvBottomY} x2={groupLeftX - 600} y2={svgTvBottomY} stroke={COLORS.slate400} strokeDasharray="15,15" strokeWidth="2" />
-        {renderDimension(groupLeftX - 550, svgFloorY, groupLeftX - 550, svgTvBottomY, `AFFL (Bottom): ${Math.round(tvBottomY_mm)}mm`, 0, true)}
-
-        {/* Title Block */}
-        <g transform={`translate(${viewWidth - 1100}, ${viewHeight - 500})`}>
-          <rect width="1050" height="450" fill="white" stroke={COLORS.slate800} strokeWidth="4" fillOpacity="0.95" />
-          <rect width="1050" height="80" fill={isBacking ? COLORS.slate300 : COLORS.slate800} />
-
-          <text
-            x="525" y="55"
-            textAnchor="middle"
-            fill={isBacking ? COLORS.slate900 : COLORS.white}
-            style={{ fontSize: '40px', fontWeight: 'bold', fontFamily: FONTS.sans }}
-          >
-            {isBacking ? 'MOUNTING DETAIL' : 'DISPLAY ELEVATION'}
-          </text>
-
-          <g transform="translate(50, 150)">
-            <text y="0" fill={COLORS.slate500} style={{ fontSize: '32px', fontWeight: 'bold', fontFamily: FONTS.mono }}>MODEL:</text>
-            <text x="320" y="0" fill={COLORS.slate800} style={{ fontSize: '32px', fontFamily: FONTS.mono }}>{dimensions.name || 'Custom Display'}</text>
-
-            <text y="70" fill={COLORS.slate500} style={{ fontSize: '32px', fontWeight: 'bold', fontFamily: FONTS.mono }}>CONFIG:</text>
-            <text x="320" y="70" fill={COLORS.slate800} style={{ fontSize: '32px', fontFamily: FONTS.mono, textTransform: 'uppercase' }}>{displayCount === 2 ? 'DUAL SCREEN' : 'SINGLE DISPLAY'}</text>
-
-            <text y="140" fill={COLORS.slate500} style={{ fontSize: '32px', fontWeight: 'bold', fontFamily: FONTS.mono }}>MOUNT:</text>
-            <text x="320" y="140" fill={COLORS.slate800} style={{ fontSize: '32px', fontFamily: FONTS.mono }}>{bracket.modelName || 'Direct Wall'}</text>
-
-            <text y="210" fill={COLORS.slate500} style={{ fontSize: '32px', fontWeight: 'bold', fontFamily: FONTS.mono }}>ALIGNMENT:</text>
-            <text x="320" y="210" fill={COLORS.slate800} style={{ fontSize: '32px', fontFamily: FONTS.mono, textTransform: 'uppercase' }}>{specs.referencePoint}</text>
-
-            <text y="280" fill={COLORS.slate500} style={{ fontSize: '32px', fontWeight: 'bold', fontFamily: FONTS.mono }}>MOUNTING:</text>
-            <text x="320" y="280" fill={COLORS.slate800} style={{ fontSize: '32px', fontWeight: 'bold', fontFamily: FONTS.mono, textTransform: 'uppercase' }}>{specs.afflValue}mm AFFL</text>
-          </g>
+        <g>
+          <line x1={groupLeftX} y1={svgTvCenterY} x2={groupLeftX + dimensionOffsets.center} y2={svgTvCenterY} stroke={COLORS.slate400} strokeDasharray="15,15" strokeWidth="2" />
+          <DimensionLine
+            x1={groupLeftX + dimensionOffsets.center + 50}
+            y1={svgFloorY}
+            x2={groupLeftX + dimensionOffsets.center + 50}
+            y2={svgTvCenterY}
+            label={`AFFL (Center): ${Math.round(tvCenterY_mm)}mm`}
+            offset={0}
+            vertical={true}
+            onMouseDown={(e) => handleDimensionMouseDown(e, 'center')}
+            isDragging={draggingDimension === 'center'}
+          />
         </g>
+
+        <g>
+          <line x1={groupLeftX} y1={svgTvBottomY} x2={groupLeftX + dimensionOffsets.bottom} y2={svgTvBottomY} stroke={COLORS.slate400} strokeDasharray="15,15" strokeWidth="2" />
+          <DimensionLine
+            x1={groupLeftX + dimensionOffsets.bottom + 50}
+            y1={svgFloorY}
+            x2={groupLeftX + dimensionOffsets.bottom + 50}
+            y2={svgTvBottomY}
+            label={`AFFL (Bottom): ${Math.round(tvBottomY_mm)}mm`}
+            offset={0}
+            vertical={true}
+            onMouseDown={(e) => handleDimensionMouseDown(e, 'bottom')}
+            isDragging={draggingDimension === 'bottom'}
+          />
+        </g>
+
       </svg>
     </div>
   );
