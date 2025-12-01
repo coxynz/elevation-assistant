@@ -403,6 +403,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
         <Guides
           viewWidth={viewWidth}
           viewHeight={viewHeight}
+          floorY={svgFloorY}
           showGuides={showGuides}
           showCamera={showCamera}
           cameraPosition={cameraPosition}
@@ -411,7 +412,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
           groupCenterX={groupCenterX}
         />
 
-        {flushboxes.map((box, index) => (
+        {isBacking && flushboxes.map((box, index) => (
           <FlushboxObject
             key={box.id}
             box={box}

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { WallConfiguration, ViewMode, MountingReference, MountingSystemType, DisplayPreset } from '../types';
 import { DEFAULT_CONFIG, DISPLAY_PRESETS } from '../constants';
 import { Settings, Monitor, Grid, Ruler, Eye, Box, ArrowUpDown, Settings2 } from 'lucide-react';
-import { DiscasCalculator } from '../../components/DiscasCalculator';
 
 interface ControlsProps {
   config: WallConfiguration;
@@ -360,11 +359,6 @@ export const Controls: React.FC<ControlsProps> = ({
               <Box size={16} />
               Add Flushbox
             </button>
-
-            {/* DISCAS Calculator */}
-            <div className="pt-2">
-              <DiscasCalculator />
-            </div>
           </div>
         </section>
 

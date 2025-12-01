@@ -4,6 +4,7 @@ import { SVG_COLORS as COLORS, SVG_FONTS as FONTS } from '../../constants/svgSty
 interface GuidesProps {
     viewWidth: number;
     viewHeight: number;
+    floorY?: number;
     showGuides: boolean;
     showCamera: boolean;
     cameraPosition: 'top' | 'bottom';
@@ -15,6 +16,7 @@ interface GuidesProps {
 export const Guides: React.FC<GuidesProps> = ({
     viewWidth,
     viewHeight,
+    floorY,
     showGuides,
     showCamera,
     cameraPosition,
@@ -24,19 +26,20 @@ export const Guides: React.FC<GuidesProps> = ({
 }) => {
     const renderEyeLevels = () => {
         if (!showGuides) return null;
-        const seatedY = viewHeight - 1200;
-        const standingY = viewHeight - 1500;
+        const floor = floorY ?? viewHeight;
+        const seatedY = floor - 1200;
+        const standingY = floor - 1500;
         const style = { fontSize: '24px', fontFamily: FONTS.sans, fill: COLORS.blue500 };
 
         return (
             <g>
                 {/* Seated Eye Level */}
                 <line x1={0} y1={seatedY} x2={viewWidth} y2={seatedY} stroke={COLORS.blue500} strokeWidth="2" strokeDasharray="10,10" opacity="0.6" />
-                <text x={20} y={seatedY - 10} style={style}>Seated Eye Level (1200mm)</text>
+                <text x={viewWidth - 20} y={seatedY - 10} textAnchor="end" style={style}>Seated Eye Level (1200mm)</text>
 
                 {/* Standing Eye Level */}
                 <line x1={0} y1={standingY} x2={viewWidth} y2={standingY} stroke={COLORS.blue500} strokeWidth="2" strokeDasharray="10,10" opacity="0.6" />
-                <text x={20} y={standingY - 10} style={style}>Standing Eye Level (1500mm)</text>
+                <text x={viewWidth - 20} y={standingY - 10} textAnchor="end" style={style}>Standing Eye Level (1500mm)</text>
             </g>
         );
     };

@@ -523,6 +523,7 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
           <Guides
             viewWidth={vbWidth}
             viewHeight={vbHeight}
+            floorY={floorY}
             showGuides={showGuides}
             showCamera={false}
             cameraPosition="bottom"
@@ -533,7 +534,7 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
         )}
 
         {/* Flushboxes */}
-        {flushboxes.map((box, index) => (
+        {currentView === 'backing' && flushboxes.map((box, index) => (
           <FlushboxObject
             key={box.id}
             box={box}

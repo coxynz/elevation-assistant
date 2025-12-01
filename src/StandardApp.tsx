@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Settings, Download, Ruler, Info, Monitor, LayoutTemplate, BoxSelect, Maximize, Wrench, Scan, ChevronDown, Eye, Video, AlertTriangle } from 'lucide-react';
 import { ElevationDrawing } from './components/ElevationDrawing';
-import { DiscasCalculator } from './components/DiscasCalculator';
 import { DISPLAY_PRESETS, MOUNTING_SCENARIOS, WALL_HEIGHT, WALL_WIDTH, BRACKET_PRESETS } from './constants';
 import { DisplayDimensions, InstallationSpecs, ScenarioType, MountingBracket, ViewMode, ValidationWarning, CameraPosition, Flushbox } from './types';
 
@@ -673,9 +672,6 @@ export default function App({ onSwitchMode }: { onSwitchMode?: () => void }) {
                   </div>
                 </div>
               )}
-
-              {/* Calculator */}
-              <DiscasCalculator />
             </div>
 
           </div>
