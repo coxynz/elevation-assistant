@@ -215,11 +215,17 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
         // Drawing shows outer tabs very close to edges with center tab in middle
         // For 2765mm rail: outer tabs ~100-150mm from edges
         const screwHoleDiameter = 13; // SW13 screws
-        const tabPositions = [
-          rowWidth * 0.15,  // 15% from left edge
-          rowWidth * 0.50,  // Center
-          rowWidth * 0.85   // 85% from left edge
-        ];
+        const MAX_SEGMENT_LENGTH = 2750;
+        const numSegments = Math.ceil(rowWidth / MAX_SEGMENT_LENGTH);
+        const segmentLength = rowWidth / numSegments;
+
+        const tabPositions: number[] = [];
+        for (let i = 0; i < numSegments; i++) {
+          const segmentStart = i * segmentLength;
+          tabPositions.push(segmentStart + (segmentLength * 0.15));
+          tabPositions.push(segmentStart + (segmentLength * 0.50));
+          tabPositions.push(segmentStart + (segmentLength * 0.85));
+        }
 
         screens.push(
           <g key={`rail-${r}`}>
@@ -607,6 +613,24 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
             vertical={true}
             onMouseDown={(e) => handleDimensionMouseDown(e, 'bottom')}
             isDragging={draggingDimension === 'bottom'}
+          />
+        </g>
+
+        <g
+          onMouseDown={(e) => handleDimensionMouseDown(e, 'top')}
+          style={{ cursor: draggingDimension === 'top' ? 'grabbing' : 'grab' }}
+        >
+          <line x1={startX} y1={startY} x2={startX + dimensionOffsets.top} y2={startY} stroke={COLORS.slate400} strokeDasharray="15,15" strokeWidth="2" />
+          <DimensionLine
+            x1={startX + dimensionOffsets.top + 50}
+            y1={svgFloorY}
+            x2={startX + dimensionOffsets.top + 50}
+            y2={startY}
+            label={`AFFL (Top): ${Math.round(floorY - startY)}mm`}
+            offset={0}
+            vertical={true}
+            onMouseDown={(e) => handleDimensionMouseDown(e, 'top')}
+            isDragging={draggingDimension === 'top'}
           />
         </g>
 

@@ -501,6 +501,21 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
           />
         </g>
 
+        <g>
+          <line x1={groupLeftX} y1={svgTvTopY} x2={groupLeftX + dimensionOffsets.top} y2={svgTvTopY} stroke={COLORS.slate400} strokeDasharray="15,15" strokeWidth="2" />
+          <DimensionLine
+            x1={groupLeftX + dimensionOffsets.top + 50}
+            y1={svgFloorY}
+            x2={groupLeftX + dimensionOffsets.top + 50}
+            y2={svgTvTopY}
+            label={`AFFL (Top): ${Math.round(tvTopY_mm)}mm`}
+            offset={0}
+            vertical={true}
+            onMouseDown={(e) => handleDimensionMouseDown(e, 'top')}
+            isDragging={draggingDimension === 'top'}
+          />
+        </g>
+
       </svg>
     </div>
   );
