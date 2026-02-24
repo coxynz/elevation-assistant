@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, Download, Ruler, Info, Monitor, LayoutTemplate, BoxSelect, Maximize, Wrench, Scan, ChevronDown, Eye, Video, AlertTriangle } from 'lucide-react';
+import { Settings, Download, Ruler, Info, Monitor, LayoutTemplate, BoxSelect, Maximize, Wrench, Scan, ChevronDown, Eye, Video, AlertTriangle, FlipVertical } from 'lucide-react';
 import { ElevationDrawing } from './components/ElevationDrawing';
 import { DISPLAY_PRESETS, MOUNTING_SCENARIOS, WALL_HEIGHT, WALL_WIDTH, BRACKET_PRESETS } from './constants';
 import { DisplayDimensions, InstallationSpecs, ScenarioType, MountingBracket, ViewMode, ValidationWarning, CameraPosition, Flushbox } from './types';
@@ -26,6 +26,7 @@ export default function App({ onSwitchMode }: { onSwitchMode?: () => void }) {
   const [showGuides, setShowGuides] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>('bottom');
+  const [cameraInverted, setCameraInverted] = useState<boolean>(false);
 
   // New State: Flushboxes
   const [flushboxes, setFlushboxes] = useState<Flushbox[]>([]);
@@ -275,6 +276,7 @@ export default function App({ onSwitchMode }: { onSwitchMode?: () => void }) {
             showGuides={showGuides}
             showCamera={showCamera}
             cameraPosition={cameraPosition}
+            cameraInverted={cameraInverted}
             flushboxes={flushboxes}
             onFlushboxMove={handleFlushboxMove}
             zoom={1.0}
@@ -298,6 +300,7 @@ export default function App({ onSwitchMode }: { onSwitchMode?: () => void }) {
             showGuides={showGuides}
             showCamera={showCamera}
             cameraPosition={cameraPosition}
+            cameraInverted={cameraInverted}
             flushboxes={flushboxes}
             onFlushboxMove={handleFlushboxMove}
             zoom={1.0}
@@ -645,32 +648,48 @@ export default function App({ onSwitchMode }: { onSwitchMode?: () => void }) {
 
               {/* Camera Position Toggle (visible when camera is shown) */}
               {showCamera && (
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Camera Position</label>
-                  <div className="flex rounded-md shadow-sm border border-slate-300 overflow-hidden">
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Camera Position</label>
+                    <div className="flex rounded-md shadow-sm border border-slate-300 overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => handleCameraPositionChange('bottom')}
+                        className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${cameraPosition === 'bottom'
+                          ? 'bg-blueprint-600 text-white'
+                          : 'bg-white text-slate-700 hover:bg-slate-50'
+                          }`}
+                      >
+                        Below Display
+                      </button>
+                      <div className="w-[1px] bg-slate-300"></div>
+                      <button
+                        type="button"
+                        onClick={() => handleCameraPositionChange('top')}
+                        className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${cameraPosition === 'top'
+                          ? 'bg-blueprint-600 text-white'
+                          : 'bg-white text-slate-700 hover:bg-slate-50'
+                          }`}
+                      >
+                        Above Display
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Inversion Toggle */}
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Orientation</label>
                     <button
                       type="button"
-                      onClick={() => handleCameraPositionChange('bottom')}
-                      className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${cameraPosition === 'bottom'
-                        ? 'bg-blueprint-600 text-white'
-                        : 'bg-white text-slate-700 hover:bg-slate-50'
+                      onClick={() => setCameraInverted(!cameraInverted)}
+                      className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-md border transition-colors ${cameraInverted ? 'bg-blueprint-50 border-blueprint-200 text-blueprint-700' : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
                         }`}
                     >
-                      Below Display
-                    </button>
-                    <div className="w-[1px] bg-slate-300"></div>
-                    <button
-                      type="button"
-                      onClick={() => handleCameraPositionChange('top')}
-                      className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${cameraPosition === 'top'
-                        ? 'bg-blueprint-600 text-white'
-                        : 'bg-white text-slate-700 hover:bg-slate-50'
-                        }`}
-                    >
-                      Above Display
+                      <FlipVertical size={14} />
+                      {cameraInverted ? 'Inverted (Ceiling Mount)' : 'Normal (Shelf Mount)'}
                     </button>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
@@ -695,6 +714,7 @@ export default function App({ onSwitchMode }: { onSwitchMode?: () => void }) {
             showGuides={showGuides}
             showCamera={showCamera}
             cameraPosition={cameraPosition}
+            cameraInverted={cameraInverted}
             flushboxes={flushboxes}
             onFlushboxMove={handleFlushboxMove}
             zoom={zoom}

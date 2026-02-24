@@ -19,6 +19,7 @@ interface ElevationDrawingProps {
   showGuides?: boolean;
   showCamera?: boolean;
   cameraPosition?: CameraPosition;
+  cameraInverted?: boolean;
   flushboxes?: Flushbox[];
   onFlushboxMove?: (id: string, x: number, y: number) => void;
   zoom?: number;
@@ -42,6 +43,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
   showGuides = false,
   showCamera = false,
   cameraPosition = 'bottom',
+  cameraInverted = false,
   flushboxes = [],
   onFlushboxMove,
   zoom = 1.0,
@@ -169,8 +171,8 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
   const groupLeftX = groupCenterX - (totalGroupWidth / 2);
   const groupRightX = groupCenterX + (totalGroupWidth / 2);
 
-  // Renderer for Chief LSM1U Wireframe
-  const renderLSM1UGeometry = (width: number, height: number, isGhost: boolean) => {
+  // Renderer for Chief Fusion Series (LSM1U / MSM1U) Wireframe
+  const renderFusionGeometry = (width: number, height: number, isGhost: boolean) => {
     const strokeColor = isGhost ? COLORS.ghost : COLORS.slate800;
     const strokeWidth = 2;
     const fill = "none";
@@ -185,8 +187,10 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
     const railYBot = height * 0.80 - railHeight;
 
     const uprightHeight = height;
-    const uprightXOffset = 200;
-
+    const uprightXOffset =
+      width > 1000 ? 300 : // XSM1U (wider spacing for larger rail)
+        width > 700 ? 200 :  // LSM1U
+          150;                  // MSM1U
     const Upright = ({ x }: { x: number }) => {
       const flareOffset = (uprightCapWidth - uprightColWidth) / 2;
       return (
@@ -222,8 +226,8 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
           <circle cx={uprightCapWidth / 2} cy={uprightHeight - capHeight / 2} r={10} stroke={strokeColor} strokeWidth={strokeWidth} fill="none" />
           <rect x={uprightCapWidth / 2 - 15} y={uprightHeight - 25} width={30} height={10} rx={5} stroke={strokeColor} fill="none" />
 
-          {/* VESA Slots */}
-          {Array.from({ length: 5 }).map((_, i) => (
+          {/* VESA Slots - Dynamically sized based on upright height */}
+          {Array.from({ length: Math.floor((uprightHeight - capHeight * 2 - 40) / 50) }).map((_, i) => (
             <rect
               key={i}
               x={flareOffset + 20}
@@ -277,8 +281,8 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
         {/* Mounting Bracket Layer */}
         {bracket.id !== 'none' && (
           <g transform={`translate(${bracketLeftX}, ${bracketTopY})`}>
-            {bracket.id === 'chief-lsm1u' ? (
-              renderLSM1UGeometry(bracket.width, bracket.height, !isBacking)
+            {bracket.id === 'chief-lsm1u' || bracket.id === 'chief-msm1u' || bracket.id === 'chief-xsm1u' ? (
+              renderFusionGeometry(bracket.width, bracket.height, !isBacking)
             ) : (
               <rect
                 x={0}
@@ -304,7 +308,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
               strokeDasharray="8,8"
             />
 
-            {bracket.id !== 'chief-lsm1u' && (
+            {bracket.id !== 'chief-lsm1u' && bracket.id !== 'chief-msm1u' && (
               <text
                 x={bracket.width / 2}
                 y={bracket.height / 2}
@@ -320,7 +324,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
             {/* Bracket Dimensions (Only in Backing View) */}
             {isBacking && (
               <>
-                <DimensionLine x1={0} y1={0} x2={bracket.width} y2={0} label={`${bracket.width}mm`} offset={-50} vertical={false} />
+                <DimensionLine x1={0} y1={0} x2={bracket.width} y2={0} label={`${bracket.width}mm`} offset={-120} vertical={false} />
                 <DimensionLine x1={bracket.width} y1={0} x2={bracket.width} y2={bracket.height} label={`${bracket.height}mm`} offset={50} vertical={true} />
               </>
             )}
@@ -407,6 +411,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
           showGuides={showGuides}
           showCamera={showCamera}
           cameraPosition={cameraPosition}
+          cameraInverted={cameraInverted}
           displayTopY={svgTvTopY}
           displayBottomY={svgTvBottomY}
           groupCenterX={groupCenterX}

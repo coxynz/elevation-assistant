@@ -1,5 +1,7 @@
 import React from 'react';
 import { SVG_COLORS as COLORS, SVG_FONTS as FONTS } from '../../constants/svgStyles';
+import { CAMERA_PHYSICAL_WIDTH, CAMERA_PHYSICAL_HEIGHT, CAMERA_DISPLAY_GAP } from '../../constants';
+import { CameraObject } from './CameraObject';
 
 interface GuidesProps {
     viewWidth: number;
@@ -8,6 +10,7 @@ interface GuidesProps {
     showGuides: boolean;
     showCamera: boolean;
     cameraPosition: 'top' | 'bottom';
+    cameraInverted: boolean;
     displayTopY: number;
     displayBottomY: number;
     groupCenterX: number;
@@ -20,6 +23,7 @@ export const Guides: React.FC<GuidesProps> = ({
     showGuides,
     showCamera,
     cameraPosition,
+    cameraInverted,
     displayTopY,
     displayBottomY,
     groupCenterX
@@ -47,29 +51,55 @@ export const Guides: React.FC<GuidesProps> = ({
     const renderCamera = () => {
         if (!showCamera) return null;
 
-        // Calculate camera position based on display and camera mount position
-        let camY: number;
-        const camWidth = 200;
-        const camH = 60;
-        const camX = groupCenterX - (camWidth / 2);
+        const camW = CAMERA_PHYSICAL_WIDTH;
+        const camH = CAMERA_PHYSICAL_HEIGHT;
+        const gap = CAMERA_DISPLAY_GAP;
 
+        // Camera X: centered on the display group
+        const camX = groupCenterX - (camW / 2);
+
+        // Camera Y (top edge of camera bounding box)
+        let camTopY: number;
         if (cameraPosition === 'bottom') {
-            // Camera flush below display (no gap)
-            camY = displayBottomY + (camH / 2);
+            camTopY = displayBottomY + gap;
         } else {
-            // Camera flush above display (no gap)
-            camY = displayTopY - (camH / 2);
+            camTopY = displayTopY - gap - camH;
         }
 
-        const camHeightMm = viewHeight - camY;
+        // Center Y of camera for the guide line and label
+        const camCenterY = camTopY + (camH / 2);
+        const camHeightMm = viewHeight - camCenterY;
 
         return (
             <g>
-                <line x1={0} y1={camY} x2={viewWidth} y2={camY} stroke={COLORS.green500} strokeWidth="2" strokeDasharray="5,5" opacity="0.5" />
-                <rect x={camX} y={camY - (camH / 2)} width={camWidth} height={camH} rx={4} fill={COLORS.slate800} />
-                <circle cx={groupCenterX} cy={camY} r={15} fill="#333" stroke="white" strokeWidth="2" />
-                <text x={camX + camWidth + 20} y={camY} alignmentBaseline="middle" fill={COLORS.green500} style={{ fontSize: '24px', fontFamily: FONTS.sans }}>
-                    VC Camera ({Math.round(camHeightMm)}mm, {cameraPosition})
+                {/* Guide line at camera center */}
+                <line
+                    x1={0}
+                    y1={camCenterY}
+                    x2={viewWidth}
+                    y2={camCenterY}
+                    stroke={COLORS.green500}
+                    strokeWidth="2"
+                    strokeDasharray="5,5"
+                    opacity="0.5"
+                />
+
+                {/* Camera SVG wireframe */}
+                <CameraObject
+                    x={camX}
+                    y={camTopY}
+                    inverted={cameraInverted}
+                />
+
+                {/* Label */}
+                <text
+                    x={camX + camW + 20}
+                    y={camCenterY}
+                    alignmentBaseline="middle"
+                    fill={COLORS.green500}
+                    style={{ fontSize: '24px', fontFamily: FONTS.sans }}
+                >
+                    IV-CAM-P12-B ({Math.round(camHeightMm)}mm, {cameraPosition}{cameraInverted ? ', inverted' : ''})
                 </text>
             </g>
         );

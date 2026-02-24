@@ -85,12 +85,35 @@ export const BRACKET_PRESETS: MountingBracket[] = [
     width: 883,
     height: 432,
     depth: 51
+  },
+  {
+    id: 'chief-msm1u',
+    label: 'Chief MSM1U (Fixed)',
+    modelName: 'Chief MSM1U',
+    // Width is wall rail width (25.75" / 654mm). 
+    // Height is the Upright/Interface bracket height (18.25" / 464mm)
+    width: 654,
+    height: 464,
+    depth: 51
+  },
+  {
+    id: 'chief-xsm1u',
+    label: 'Chief XSM1U (Fixed)',
+    modelName: 'Chief XSM1U',
+    // Width is wall rail width (42.0" / 1066.8mm). 
+    // Height is the Upright/Interface bracket height (26.25" / 666.8mm)
+    width: 1067,
+    height: 667,
+    depth: 57
   }
 ];
 
 export const EYE_LEVEL_SEATED = 1200; // mm
 export const EYE_LEVEL_STANDING = 1500; // mm
 export const CAMERA_HEIGHT_STANDARD = 1100; // mm
+export const CAMERA_PHYSICAL_WIDTH = 226; // mm — Crestron IV-CAM-P12-B
+export const CAMERA_PHYSICAL_HEIGHT = 166; // mm — Crestron IV-CAM-P12-B
+export const CAMERA_DISPLAY_GAP = 10; // mm — tiny gap between camera and display edge
 export const TABLE_HEIGHT = 750; // mm
 export const ADA_MAX_INTERACTIVE_HEIGHT = 1220; // mm (48")
 export const ADA_MIN_INTERACTIVE_HEIGHT = 610; // mm (24")
