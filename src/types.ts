@@ -9,6 +9,8 @@ export interface DisplayDimensions {
   height: number; // always stored in mm
   depth?: number; // optional depth in mm
   diagonalInch?: number; // for label purposes
+  vesaWidth?: number; // VESA horizontal in mm
+  vesaHeight?: number; // VESA vertical in mm
   name?: string;
 }
 

@@ -281,7 +281,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
         {/* Mounting Bracket Layer */}
         {bracket.id !== 'none' && (
           <g transform={`translate(${bracketLeftX}, ${bracketTopY})`}>
-            {bracket.id === 'chief-lsm1u' || bracket.id === 'chief-msm1u' || bracket.id === 'chief-xsm1u' ? (
+            {bracket.id === 'chief-lsm1u' || bracket.id === 'chief-msm1u' || bracket.id === 'chief-xsm1u' || bracket.id === 'chief-as3ld' ? (
               renderFusionGeometry(bracket.width, bracket.height, !isBacking)
             ) : (
               <rect
@@ -308,7 +308,7 @@ export const ElevationDrawing: React.FC<ElevationDrawingProps> = ({
               strokeDasharray="8,8"
             />
 
-            {bracket.id !== 'chief-lsm1u' && bracket.id !== 'chief-msm1u' && (
+            {bracket.id !== 'chief-lsm1u' && bracket.id !== 'chief-msm1u' && bracket.id !== 'chief-xsm1u' && bracket.id !== 'chief-as3ld' && (
               <text
                 x={bracket.width / 2}
                 y={bracket.height / 2}

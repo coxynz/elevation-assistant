@@ -5,6 +5,16 @@ import { Preset, MountingScenario, MountingBracket } from './types';
 export const DISPLAY_PRESETS: Preset[] = [
   // LG UR640S0TD Series
   {
+    id: 'lg-86uh5n-m',
+    label: 'LG 86UH5N-M (86")',
+    dimensions: { width: 1928.8, height: 1099.8, depth: 29.7, diagonalInch: 86, vesaWidth: 600, vesaHeight: 400, name: 'LG 86UH5N-M' }
+  },
+  {
+    id: 'lg-75uh5n-m',
+    label: 'LG 75UH5N-M (75")',
+    dimensions: { width: 1679.5, height: 958.7, depth: 29.7, diagonalInch: 75, vesaWidth: 600, vesaHeight: 400, name: 'LG 75UH5N-M' }
+  },
+  {
     id: 'lg-86ur640s0td',
     label: 'LG 86UR640S0TD (86")',
     dimensions: { width: 1927, height: 1104, depth: 59.9, diagonalInch: 86, name: 'LG 86UR640S0TD' }
@@ -28,6 +38,11 @@ export const DISPLAY_PRESETS: Preset[] = [
     id: 'lg-43ur640s0td',
     label: 'LG 43UR640S0TD (43")',
     dimensions: { width: 967, height: 564, depth: 57.1, diagonalInch: 43, name: 'LG 43UR640S0TD' }
+  },
+  {
+    id: 'lg-98uh5j-h',
+    label: 'LG 98UH5J-H (98")',
+    dimensions: { width: 2191.8, height: 1246.8, depth: 86.1, diagonalInch: 98, name: 'LG 98UH5J-H' }
   },
   // Sony BZ30L Series
   {
@@ -105,6 +120,14 @@ export const BRACKET_PRESETS: MountingBracket[] = [
     width: 1067,
     height: 667,
     depth: 57
+  },
+  {
+    id: 'chief-as3ld',
+    label: 'Chief AS3LD (Fixed)',
+    modelName: 'Chief AS3LD',
+    width: 1067.5,
+    height: 460.4,
+    depth: 41.3
   }
 ];
 
