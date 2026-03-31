@@ -238,9 +238,9 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                   y={railY - 20}
                   width={60}
                   height={20}
-                  fill="#e2e8f0" // Light gray/white - same as rail
-                  stroke="#0f172a"
-                  strokeWidth="2"
+                  fill="transparent"
+                  stroke="black"
+                  strokeWidth="4"
                   rx="2"
                 />
                 {/* Top tab screw hole */}
@@ -248,9 +248,9 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                   cx={startX + pos}
                   cy={railY - 10}
                   r={screwHoleDiameter / 2}
-                  fill="#64748b" // Lighter gray to be visible
-                  stroke="#0f172a"
-                  strokeWidth="1"
+                  fill="black"
+                  stroke="black"
+                  strokeWidth="2"
                 />
 
                 {/* Bottom tab */}
@@ -259,9 +259,9 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                   y={railY + PFB_HEIGHT}
                   width={60}
                   height={20}
-                  fill="#e2e8f0" // Light gray/white - same as rail
-                  stroke="#0f172a"
-                  strokeWidth="2"
+                  fill="transparent"
+                  stroke="black"
+                  strokeWidth="4"
                   rx="2"
                 />
                 {/* Bottom tab screw hole */}
@@ -269,22 +269,22 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                   cx={startX + pos}
                   cy={railY + PFB_HEIGHT + 10}
                   r={screwHoleDiameter / 2}
-                  fill="#64748b" // Lighter gray to be visible
-                  stroke="#0f172a"
-                  strokeWidth="1"
+                  fill="black"
+                  stroke="black"
+                  strokeWidth="2"
                 />
               </g>
             ))}
 
-            {/* Main Rail Body - light colored like technical drawing */}
+            {/* Main Rail Body */}
             <rect
               x={startX}
               y={railY}
               width={rowWidth}
               height={PFB_HEIGHT}
-              fill="#e2e8f0" // Light gray/white
-              stroke="#0f172a" // Black outline
-              strokeWidth="3"
+              fill="transparent"
+              stroke="black"
+              strokeWidth="6"
               rx="3"
             />
 
@@ -295,8 +295,8 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
               width={rowWidth - 20}
               height={161}
               fill="none"
-              stroke="#64748b" // Darker gray for detail
-              strokeWidth="2"
+              stroke="black"
+              strokeWidth="4"
               rx="2"
             />
 
@@ -308,16 +308,16 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                   cx={startX + pos}
                   cy={railY + (PFB_HEIGHT / 2)}
                   r={screwHoleDiameter / 2}
-                  fill="#0f172a"
-                  stroke="#64748b"
-                  strokeWidth="1"
+                  fill="black"
+                  stroke="black"
+                  strokeWidth="2"
                 />
                 {/* Center indicator */}
                 <circle
                   cx={startX + pos}
                   cy={railY + (PFB_HEIGHT / 2)}
-                  r={3}
-                  fill="#94a3b8"
+                  r={4}
+                  fill="black"
                 />
               </g>
             ))}
@@ -328,16 +328,16 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
               y1={railY + PFB_HEIGHT * 0.3}
               x2={startX + rowWidth - 5}
               y2={railY + PFB_HEIGHT * 0.3}
-              stroke="#94a3b8"
-              strokeWidth="2"
+              stroke="black"
+              strokeWidth="3"
             />
             <line
               x1={startX + 5}
               y1={railY + PFB_HEIGHT * 0.7}
               x2={startX + rowWidth - 5}
               y2={railY + PFB_HEIGHT * 0.7}
-              stroke="#94a3b8"
-              strokeWidth="2"
+              stroke="black"
+              strokeWidth="3"
             />
 
             {/* Rail Label */}
@@ -345,8 +345,9 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
               x={startX + 10}
               y={railY + PFB_HEIGHT - 10}
               fontSize="20"
-              fill="#94a3b8" // slate-400
+              fill="black"
               fontFamily="monospace"
+              fontWeight="bold"
             >
               PFB 3427
             </text>
@@ -382,11 +383,10 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                 y={y}
                 width={display.width}
                 height={display.height}
-                fill="white"
-                fillOpacity="0.05"
-                stroke={COLORS.slate900}
-                strokeWidth="3"
-                strokeDasharray="12,12"
+                fill="transparent"
+                stroke="black"
+                strokeWidth="6"
+                strokeDasharray="16,16"
               />
 
               {/* Connect-it Vertical Strips (PFS) - REMOVED per user request */}
@@ -397,10 +397,10 @@ export const VideoWallCanvas: React.FC<VideoWallCanvasProps> = ({
                 y={y + display.height / 2}
                 textAnchor="middle"
                 alignmentBaseline="middle"
-                fill={COLORS.slate400}
+                fill="black"
                 fontSize="48"
                 fontWeight="bold"
-                opacity="0.5"
+                opacity="1"
               >
                 {r + 1}-{c + 1}
               </text>

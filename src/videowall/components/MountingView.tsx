@@ -112,8 +112,8 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
             <rect width="100%" height="100%" fill="url(#gridSub)" />
 
             {/* Floor */}
-            <line x1="0" y1={floorY} x2={vbWidth} y2={floorY} stroke="#0f172a" strokeWidth="4" />
-            <text x={vbWidth - 50} y={floorY - 20} textAnchor="end" fontSize={fontSize} fontWeight="bold" fill="#0f172a">FFL</text>
+            <line x1="0" y1={floorY} x2={vbWidth} y2={floorY} stroke="black" strokeWidth="8" />
+            <text x={vbWidth - 50} y={floorY - 20} textAnchor="end" fontSize={fontSize} fontWeight="bold" fill="black">FFL</text>
 
             {/* Ghosted Screens with Dashed Outlines */}
             {Array.from({ length: safeRows }).map((_, r) => (
@@ -124,11 +124,10 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                         y={wallTopY + r * (safeDisplayHeight + safeGap)}
                         width={safeDisplayWidth}
                         height={safeDisplayHeight}
-                        fill="#eff6ff" // Blue-50
-                        fillOpacity="0.8"
-                        stroke="#3b82f6" // Blue-500
-                        strokeWidth="2"
-                        strokeDasharray="8 6" // Technical dashed look
+                        fill="transparent"
+                        stroke="black"
+                        strokeWidth="6"
+                        strokeDasharray="16 12" // Strong dashed look
                     />
                 ))
             ))}
@@ -140,18 +139,18 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                     y1={wallTopY - 100} 
                     x2={wallOriginX + totalWidth} 
                     y2={wallTopY - 100} 
-                    stroke="#64748b" 
-                    strokeWidth="1.5" 
+                    stroke="black" 
+                    strokeWidth="4" 
                 />
-                <line x1={wallOriginX} y1={wallTopY - 90} x2={wallOriginX} y2={wallTopY - 110} stroke="#64748b" strokeWidth="1.5" />
-                <line x1={wallOriginX + totalWidth} y1={wallTopY - 90} x2={wallOriginX + totalWidth} y2={wallTopY - 110} stroke="#64748b" strokeWidth="1.5" />
+                <line x1={wallOriginX} y1={wallTopY - 80} x2={wallOriginX} y2={wallTopY - 120} stroke="black" strokeWidth="4" />
+                <line x1={wallOriginX + totalWidth} y1={wallTopY - 80} x2={wallOriginX + totalWidth} y2={wallTopY - 120} stroke="black" strokeWidth="4" />
                 <text 
                     x={wallOriginX + totalWidth / 2} 
-                    y={wallTopY - 120} 
+                    y={wallTopY - 130} 
                     textAnchor="middle" 
                     fontSize={fontSize * 0.9} 
-                    fill="#64748b" 
-                    fontWeight="500"
+                    fill="black" 
+                    fontWeight="bold"
                 >
                     {Math.round(totalWidth)}mm
                 </text>
@@ -170,9 +169,9 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                              const by = pos.railY - (railHeight/2) - 15;
                              return (
                                 <g key={`bracket-${idx}-${i}`}>
-                                    <rect x={bx - 10} y={by} width={20} height={railHeight + 30} rx="2" fill="#475569" />
-                                    <circle cx={bx} cy={by + 8} r="3" fill="#cbd5e1" />
-                                    <circle cx={bx} cy={by + railHeight + 22} r="3" fill="#cbd5e1" />
+                                    <rect x={bx - 10} y={by} width={20} height={railHeight + 30} rx="2" fill="transparent" stroke="black" strokeWidth="4" />
+                                    <circle cx={bx} cy={by + 8} r="5" fill="black" />
+                                    <circle cx={bx} cy={by + railHeight + 22} r="5" fill="black" />
                                 </g>
                              );
                         })}
@@ -183,29 +182,10 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                             y={railYTop} 
                             width={totalWidth} 
                             height={railHeight} 
-                            fill="#1e293b" // Slate 800
+                            fill="transparent"
+                            stroke="black"
+                            strokeWidth="5"
                             rx="1"
-                        />
-                        
-                        {/* Rail Highlight */}
-                        <rect 
-                            x={wallOriginX} 
-                            y={railYTop + 5} 
-                            width={totalWidth} 
-                            height={railHeight/3} 
-                            fill="white"
-                            fillOpacity="0.1" 
-                        />
-                        
-                        {/* Bottom Shadow line */}
-                        <line 
-                            x1={wallOriginX} 
-                            y1={railYTop + railHeight} 
-                            x2={wallOriginX + totalWidth} 
-                            y2={railYTop + railHeight} 
-                            stroke="black" 
-                            strokeOpacity="0.3" 
-                            strokeWidth="2" 
                         />
 
                         {/* --- Clean Elevation Markers (Left Side) --- */}
@@ -216,10 +196,9 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                             y1={pos.railY} 
                             x2={wallOriginX} 
                             y2={pos.railY} 
-                            stroke="#94a3b8" 
-                            strokeDasharray="4 4" 
-                            strokeWidth="1"
-                            opacity="0.6"
+                            stroke="black" 
+                            strokeDasharray="12 10" 
+                            strokeWidth="3"
                         />
                         
                         {/* Vertical Dimension Line from Floor up to Rail */}
@@ -228,13 +207,13 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                             y1={floorY} 
                             x2={dimX} 
                             y2={pos.railY} 
-                            stroke="#3b82f6" 
-                            strokeWidth="1.5"
+                            stroke="black" 
+                            strokeWidth="4"
                         />
                         {/* Arrow at Rail */}
                         <path 
-                            d={`M${dimX} ${pos.railY} L${dimX - 8} ${pos.railY + 12} L${dimX + 8} ${pos.railY + 12} Z`} 
-                            fill="#3b82f6" 
+                            d={`M${dimX} ${pos.railY} L${dimX - 12} ${pos.railY + 18} L${dimX + 12} ${pos.railY + 18} Z`} 
+                            fill="black" 
                         />
                         
                         {/* Text Label */}
@@ -242,7 +221,7 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                             x={dimX - 15} 
                             y={pos.railY} 
                             fontSize={fontSize} 
-                            fill="#0f172a" 
+                            fill="black" 
                             fontWeight="bold"
                             textAnchor="end"
                             dominantBaseline="middle"
@@ -260,27 +239,26 @@ export const MountingView: React.FC<MountingViewProps> = ({ config }) => {
                 y1={wallTopY} 
                 x2={wallOriginX + totalWidth/2} 
                 y2={floorY} 
-                stroke="#ef4444" 
-                strokeDasharray="10 5" 
-                opacity="0.4"
-                strokeWidth="2"
+                stroke="black" 
+                strokeDasharray="20 10" 
+                strokeWidth="4"
             />
             
             {/* Dimensions Legend */}
              <g transform={`translate(${wallOriginX + totalWidth + 100}, ${wallTopY})`}>
-                <text x="0" y="0" fontSize={fontSize*0.8} fill="#64748b" fontWeight="bold">
+                <text x="0" y="0" fontSize={fontSize*0.8} fill="black" fontWeight="bold">
                    MOUNTING DETAILS
                 </text>
-                <text x="0" y={fontSize * 1.5} fontSize={fontSize*0.8} fill="#64748b">
+                <text x="0" y={fontSize * 1.5} fontSize={fontSize*0.8} fill="black" fontWeight="bold">
                    Configuration: {safeCols}x{safeRows}
                 </text>
-                <text x="0" y={fontSize * 3} fontSize={fontSize*0.8} fill="#64748b">
+                <text x="0" y={fontSize * 3} fontSize={fontSize*0.8} fill="black" fontWeight="bold">
                     Rail Length: {Math.round(totalWidth)}mm
                 </text>
-                <text x="0" y={fontSize * 4.5} fontSize={fontSize*0.8} fill="#64748b">
+                <text x="0" y={fontSize * 4.5} fontSize={fontSize*0.8} fill="black" fontWeight="bold">
                     VESA Pattern: {display.vesaWidth}x{display.vesaHeight}mm
                 </text>
-                <text x="0" y={fontSize * 6} fontSize={fontSize*0.8} fill="#64748b">
+                <text x="0" y={fontSize * 6} fontSize={fontSize*0.8} fill="black" fontWeight="bold">
                     Est. Total Weight: {Math.round(safeRows * safeCols * display.weight)}kg
                 </text>
              </g>
